@@ -2,7 +2,6 @@ use std::env;
 use std::fs;
 use std::path::Path;
 use std::io;
-use regex::Regex;
 
 fn main() {
     let mut pc: u8 = 0x10;
@@ -37,13 +36,36 @@ fn main() {
 
         let toy = fs::read_to_string(filename).expect("Something went wrong when reading the file");
 
-        let re = Regex::new(r"([0-9A-Fa-f]{2}):[ \t]*([0-9A-Fa-f]{4}).*").unwrap();
         for line in toy.lines() {
-            if let Some(caps) = re.captures(line) {
-                let addr = from_hex(&caps[1]) as usize;
-                let inst = from_hex(&caps[2]);
-                mem[addr] = inst;
+            if line.len() < 7 {
+                continue;
             }
+
+            if line.chars().nth(2).unwrap() != ':' {
+                continue;
+            }
+
+            let (addr, inst) = line.split_once(':').unwrap();
+            let inst = inst.trim();
+
+            if inst.len() < 4 {
+                continue;
+            }
+
+            let inst = &inst[..4];
+
+            if !addr.chars().all(is_hex_char) {
+                continue;
+            }
+
+            if !inst.chars().all(is_hex_char) {
+                continue;
+            }
+
+            let addr = from_hex(addr) as usize;
+            let inst = from_hex(inst);
+
+            mem[addr] = inst;
         }
     }
 
@@ -126,6 +148,15 @@ fn print_array(array: &[i16]) {
 
 fn from_hex(s: &str) -> i16 {
     u16::from_str_radix(s, 16).unwrap() as i16
+}
+
+fn is_hex_char(c: char) -> bool {
+    match c {
+        '0'..='9'
+      | 'A'..='F'
+      | 'a'..='f' => true,
+        _ => false
+    }
 }
 
 #[derive(PartialEq)]
