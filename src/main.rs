@@ -55,13 +55,13 @@ fn main() {
 
         pc = pc.wrapping_add(1);
 
-        let op = (inst >> 12) & 15;
+        let op = OpCode::new((inst >> 12) & 15);
         let d = ((inst >> 8) & 15) as usize;
         let s = ((inst >> 4) & 15) as usize;
         let t = (inst & 15) as usize;
         let addr = (inst & 255) as usize;
 
-        if (addr == 255 && op == 8) || (r[t] == 255 && op == 10) {
+        if (addr == 255 && op == OpCode::Load) || (r[t] == 255 && op == OpCode::LoadIndirect) {
             let mut input = String::new();
             println!("In:");
             io::stdin()
@@ -71,33 +71,32 @@ fn main() {
         }
 
         match op {
-            0 => break,
-            1 => r[d] = r[s].wrapping_add(r[t]),
-            2 => r[d] = r[s].wrapping_sub(r[t]),
-            3 => r[d] = r[s] & r[t],
-            4 => r[d] = r[s] ^ r[t],
-            5 => r[d] = r[s].wrapping_shl(r[t] as u32),
-            6 => r[d] = r[s].wrapping_shr(r[t] as u32),
-            7 => r[d] = addr as i16,
-            8 => r[d] = mem[addr],
-            9 => mem[addr] = r[d],
-            10 => r[d] = mem[(r[t] & 255) as usize],
-            11 => mem[(r[t] & 255) as usize] = r[d],
-            12 => if r[d] == 0 {
+            OpCode::Halt => break,
+            OpCode::Add => r[d] = r[s].wrapping_add(r[t]),
+            OpCode::Subtract => r[d] = r[s].wrapping_sub(r[t]),
+            OpCode::And => r[d] = r[s] & r[t],
+            OpCode::Xor => r[d] = r[s] ^ r[t],
+            OpCode::LeftShift => r[d] = r[s].wrapping_shl(r[t] as u32),
+            OpCode::RightShift => r[d] = r[s].wrapping_shr(r[t] as u32),
+            OpCode::LoadAddress => r[d] = addr as i16,
+            OpCode::Load => r[d] = mem[addr],
+            OpCode::Store => mem[addr] = r[d],
+            OpCode::LoadIndirect => r[d] = mem[(r[t] & 255) as usize],
+            OpCode::StoreIndirect => mem[(r[t] & 255) as usize] = r[d],
+            OpCode::BranchZero => if r[d] == 0 {
                     pc = addr as u8;
                 },
-            13 => if r[d] > 0 {
+            OpCode::BranchPositive => if r[d] > 0 {
                 pc = addr as u8;
             },
-            14 => pc = r[d] as u8,
-            15 => {
+            OpCode::JumpRegister => pc = r[d] as u8,
+            OpCode::JumpAndLink => {
                 r[d] = pc as i16;
                 pc = addr as u8;
             }
-            _ => unreachable!()
         }
 
-        if (addr == 255 && op == 9) || (r[t] == 255 && op == 11) {
+        if (addr == 255 && op == OpCode::Store) || (r[t] == 255 && op == OpCode::StoreIndirect) {
             println!("Out:");
             println!("{0:#06X} ({0})", mem[255]);
         }
@@ -127,4 +126,48 @@ fn print_array(array: &[i16]) {
 
 fn from_hex(s: &str) -> i16 {
     u16::from_str_radix(s, 16).unwrap() as i16
+}
+
+#[derive(PartialEq)]
+enum OpCode {
+    Halt,
+    Add,
+    Subtract,
+    And,
+    Xor,
+    LeftShift,
+    RightShift,
+    LoadAddress,
+    Load,
+    Store,
+    LoadIndirect,
+    StoreIndirect,
+    BranchZero,
+    BranchPositive,
+    JumpRegister,
+    JumpAndLink,
+}
+
+impl OpCode {
+    fn new(op: i16) -> Self {
+        match op {
+            0 => Self::Halt,
+            1 => Self::Add,
+            2 => Self::Subtract,
+            3 => Self::And,
+            4 => Self::Xor,
+            5 => Self::LeftShift,
+            6 => Self::RightShift,
+            7 => Self::LoadAddress,
+            8 => Self::Load,
+            9 => Self::Store,
+            10 => Self::LoadIndirect,
+            11 => Self::StoreIndirect,
+            12 => Self::BranchZero,
+            13 => Self::BranchPositive,
+            14 => Self::JumpRegister,
+            15 => Self::JumpAndLink,
+            _ => unreachable!()
+        }
+    }
 }
