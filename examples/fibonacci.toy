@@ -1,0 +1,15 @@
+// fibonacci.toy
+// Input: None
+// Output: Prints positive fibonacci numbers to stdout
+// https://www.comscigate.com/cs/IntroSedgewick/50machine/54programming/fibonacci.toy
+
+00: 0000 0
+01: 0001 1
+
+10: 8A00 R[A] <- mem[00]
+11: 8B01 R[B] <- mem[01]
+12: 9AFF stdout <- R[A]
+13: 1AAB R[A] <- R[A] + R[B]
+14: 2BAB R[B] <- R[A] - R[B]
+15: DA12 if (R[A] > 0) goto 12
+16: 0000 halt

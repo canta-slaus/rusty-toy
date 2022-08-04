@@ -1,0 +1,17 @@
+// chop.toy
+// Input: Reads a number N from stdin
+// Output: Prints the unique set of powers of 2 which sum to N
+// https://www.comscigate.com/cs/IntroSedgewick/50machine/54programming/chop.toy
+
+10: 82FF R[2] <- stdin
+
+11: D213 if (R[2] > 0) goto 13
+12: 0000 halt
+
+13: 2302 R[3] <- -R[2]
+14: 3423 R[4] <- R[2] & R[3]
+15: 94FF stdout <- R[4]
+16: 2224 R[2] <- R[2] - R[4]
+17: D211 if (R[2] > 0) goto 11
+
+18: 0000 halt

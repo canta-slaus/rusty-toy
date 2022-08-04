@@ -1,0 +1,25 @@
+// multiply.toy
+// Input: Two numbers in memory location 0A and 0B
+// Output: Product of the integers stored in memory location 0C
+// https://www.comscigate.com/cs/IntroSedgewick/50machine/54programming/multiply.toy
+
+0A: 0003 3
+0B: 0009 9
+0C: 0000 0
+
+0D: 0000 0
+0E: 0001 1
+
+10: 8A0A R[A] <- mem[0A]
+11: 8B0B R[B] <- mem[0B]
+12: 8C0D R[C] <- mem[0D]
+
+13: 810E R[1] <- mem[0E]
+
+14: CA18 if (R[A] == 0) goto 18
+15: 1CCB R[C] <- R[C] + R[B]
+16: 2AA1 R[A] <- R[A] - R[1]
+17: C014 goto 14
+
+18: 9C0C mem[0C] <- RC
+19: 0000 halt

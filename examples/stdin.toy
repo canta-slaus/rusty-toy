@@ -1,0 +1,10 @@
+// stdin.toy
+// Input: Reads two integers from stdin
+// Output: Prints the sum of the integers to stdout
+// https://www.comscigate.com/cs/IntroSedgewick/50machine/54programming/stdin.toy
+
+10: 8AFF R[A] <- stdin
+11: 8BFF R[B] <- stdin
+12: 1CAB R[C] <- R[A] + R[B]
+13: 9CFF stdout <- R[C]
+14: 0000 halt

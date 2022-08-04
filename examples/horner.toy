@@ -1,0 +1,35 @@
+// horner.toy
+// Input: Reads x, n, a_n, . . ., a_2, a_1, a_0 from stdin
+// Output: p_n(x) = a_n * x ^ n + . . .  + a_2 * x ^ 2 + a_1 * x + a_0
+// https://www.comscigate.com/cs/IntroSedgewick/50machine/54programming/horner.toy
+
+10: 7C00 R[C] <- 0000                  result c
+11: 7101 R[1] <- 0001                  always 1
+12: 82FF R[2] <- stdin                 read x
+13: 83FF R[3] <- stdin                 read n
+
+14: 84FF R[4] <- stdin                 do { read a_i
+15: 1A20 R[A] <- R[2]
+16: 1BC0 R[B] <- R[C]                    c *= x
+17: FF30 R[F] <- pc; goto 30
+18: 1CC4 R[C] <- R[C] + R[4]             c += a_i
+19: C31C if (R[3] == 0) goto 1C
+1A: 2331 R[3] <- R[3] - R[1]           } while (i-- >= 0)
+1B: C014 goto 14
+
+1C: 9CFF stdout <- R[C]
+1D: 0000 halt
+
+// function multiply
+// Input: R[A] and R[B] (should be passed by value)
+// Return address: R[F]
+// Output: R[C] = R[A] * R[B]
+// Temporary variables:  R[1] = 1
+
+30: 7C00 R[C] <- 0000
+31: 7101 R[1] <- 0001
+32: CA36 if (R[A] == 0) goto 36
+33: 1CCB R[C] <- R[C] + R[B]
+34: 2AA1 R[A] <- R[A] - R[1]
+35: C032 goto 32
+36: EF00 goto R[F]

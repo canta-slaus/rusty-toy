@@ -1,0 +1,35 @@
+// multiply-function.toy
+// Input: Reads 3 integers from stdin
+// Output: Prints the product of the 3 integers
+// https://www.comscigate.com/cs/IntroSedgewick/50machine/54programming/multiply-function.toy
+
+10: 82FF R[2] <- stdin                 x
+11: 83FF R[3] <- stdin                 y
+12: 84FF R[4] <- stdin                 z
+
+// Multiply x and y
+13: 1A20 R[A] <- R[2]                  x
+14: 1B30 R[B] <- R[3]                  y
+15: FF30 R[F] <- pc; goto 30           x * y
+
+// Multiply (x * y) and z
+16: 1AC0 R[A] <- R[C]                  x * y
+17: 1B40 R[B] <- R[4]                  z
+18: FF30 R[F] <- pc; goto 30           (x * y) * z
+
+19: 9CFF stdout <- R[C]
+1A: 0000 halt                          
+
+// function multiply
+// Input: R[A] and R[B] (should be passed by value)
+// Return address: R[F]
+// Output: R[C] = R[A] * R[B]
+// Temporary variables: R[1] = 1
+
+30: 7C00 R[C] <- 0000                  
+31: 7101 R[1] <- 0001                  
+32: CA36 if (R[A] == 0) goto 36        
+33: 1CCB R[C] <- R[C] + R[B]           
+34: 2AA1 R[A] <- R[A] - R[1]           
+35: C032 goto 32                       
+36: EF00 goto R[F]

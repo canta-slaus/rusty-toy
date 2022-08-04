@@ -1,0 +1,24 @@
+// reverse.toy
+// Input: Reads integers from stdin (terminated by a 0000)
+// Output: Prints the integers in reverse order
+// https://www.comscigate.com/cs/IntroSedgewick/50machine/54programming/reverse.toy
+
+10: 7101 R[1] <- 0001
+11: 7A30 R[A] <- 0030
+12: 7B00 R[B] <- 0000
+
+13: 8CFF R[C] <- stdin
+14: CC19 if (R[C] == 0) goto 19
+15: 16AB R[6] <- R[A] + R[B]
+16: BC06 mem[R[6]] <- R[C]
+17: 1BB1 R[B] <- R[B] + R[1]
+18: C013 goto 13
+
+19: CB20 if (R[B] == 0) goto 20
+1A: 16AB R[6] <- R[A] + R[B]
+1B: 2661 R[6] <- R[6] - R[1]
+1C: AC06 R[C] <- mem[R[6]]
+1D: 9CFF stdout <- R[C]
+1E: 2BB1 R[B] <- R[B] - R[1]
+1F: C019 goto 19
+20: 0000 halt

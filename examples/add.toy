@@ -1,0 +1,13 @@
+// add.toy
+// Input: Stored in memory location 00 and 01
+// Output: Sum of two integers saved in memory location 02
+// https://www.comscigate.com/cs/IntroSedgewick/50machine/54programming/add.toy
+
+00: 0008 8
+01: 0005 5
+
+10: 8A00 R[A] <- mem[00]
+11: 8B01 R[B] <- mem[01]
+12: 1CAB R[C] <- R[A] + R[B]
+13: 9C02 mem[02] <- R[C]
+14: 0000 halt

@@ -1,0 +1,13 @@
+// powers.toy
+// Input: None
+// Output: Prints out the positive powers of 2 to stdout
+// https://www.comscigate.com/cs/IntroSedgewick/50machine/54programming/powers2.toy
+
+00: 0001 1
+
+10: 8A00 R[A] <- mem[00]
+                                        while(a != 0) {
+11: 9AFF stdout <- R[A]                   System.out.println(a)
+12: 1AAA R[A] <- R[A] + R[A]              a = a + a
+13: DA11 if (RA > 0) goto 11            }
+14: 0000 halt

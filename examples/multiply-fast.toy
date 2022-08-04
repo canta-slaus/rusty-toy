@@ -1,0 +1,28 @@
+// multiply-fast.toy
+// Input: Stored in memory location 0A and 0B
+// Output: Product of two integers saved in memory location 0C
+// https://www.comscigate.com/cs/IntroSedgewick/50machine/54programming/multiply-fast.toy
+
+0A: 0003 3
+0B: 0009 9
+0C: 0000 0
+
+0D: 0000 0
+0E: 0001 1
+0F: 0010 16
+
+10: 8A0A R[A] <- mem[0A]
+11: 8B0B R[B] <- mem[0B]
+12: 8C0D R[C] <- mem[0D]
+13: 810E R[1] <- mem[0E]
+14: 820F R[2] <- mem[0F]
+
+15: 2221 R[2] <- R[2]  - R[1]
+16: 53A2 R[3] <- R[A] << R[2]
+17: 64B2 R[4] <- R[B] >> R[2]
+18: 3441 R[4] <- R[4]  & R[1]
+19: C41B if (R[4] == 0) goto 1B
+1A: 1CC3 R[C] <- R[C] + R[3]
+1B: D215 if (R[2] > 0) goto 15
+
+1C: 9C0C mem[0C] <- R[C]

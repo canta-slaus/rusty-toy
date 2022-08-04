@@ -1,0 +1,13 @@
+// sum.toy
+// Input: Reads integers from stdin (terminated by a 0000)
+// Output: Prints the sum of all integers to stdout
+// https://www.comscigate.com/cs/IntroSedgewick/50machine/54programming/sum.toy
+
+10: 7C00 R[C] <- 0000
+
+11: 8AFF R[A] <- stdin
+12: CA15 if (R[A] == 0) goto 15
+13: 1CCA R[C] <- R[C] + R[A]
+14: C011 goto 11
+15: 9CFF stdout <- R[C]
+16: 0000 halt
