@@ -1,8 +1,8 @@
-use super::opcode::OpCode;
+use super::{error::ToyError, opcode::OpCode};
 
-use std::path::Path;
 use std::fs;
 use std::io;
+use std::path::Path;
 
 pub struct Toy {
     pc: u8,
@@ -15,29 +15,31 @@ impl Toy {
         Self {
             pc: 0x10,
             registers: [0x0000; 16],
-            memory: [0x0000; 256]
+            memory: [0x0000; 256],
         }
     }
 
-    pub fn read_from_file(&mut self, path: &str) {
+    pub fn read_from_file(&mut self, path: Option<&String>) -> Result<(), ToyError> {
+        if path.is_none() {
+            return Err(ToyError::MissingRequiredPath);
+        }
+
+        let path = path.unwrap();
         let file = Path::new(path);
 
         if !file.exists() {
-            println!("File doesn't exist");
-            return;
+            return Err(ToyError::FileDoesNotExist);
         }
 
         if let Some(extension) = file.extension() {
             if extension != "toy" {
-                println!("Not a .toy file");
-                return;
+                return Err(ToyError::InvalidFileType);
             }
         } else {
-            println!("Unknown file extension");
-            return;
+            return Err(ToyError::UnknownFileType);
         }
 
-        let toy = fs::read_to_string(path).expect("Something went wrong when reading the file");
+        let toy = fs::read_to_string(path)?;
 
         for line in toy.lines() {
             if line.len() < 7 {
@@ -70,6 +72,8 @@ impl Toy {
 
             self.memory[addr] = inst;
         }
+
+        Ok(())
     }
 
     pub fn print_registers(&self) {
@@ -101,7 +105,9 @@ impl Toy {
             let t = (inst & 15) as usize;
             let addr = (inst & 255) as usize;
 
-            if (addr == 255 && op == OpCode::Load) || (self.registers[t] == 255 && op == OpCode::LoadIndirect) {
+            if (addr == 255 && op == OpCode::Load)
+                || (self.registers[t] == 255 && op == OpCode::LoadIndirect)
+            {
                 let mut input = String::new();
                 println!("In:");
                 io::stdin()
@@ -112,23 +118,39 @@ impl Toy {
 
             match op {
                 OpCode::Halt => break,
-                OpCode::Add => self.registers[d] = self.registers[s].wrapping_add(self.registers[t]),
-                OpCode::Subtract => self.registers[d] = self.registers[s].wrapping_sub(self.registers[t]),
+                OpCode::Add => {
+                    self.registers[d] = self.registers[s].wrapping_add(self.registers[t])
+                }
+                OpCode::Subtract => {
+                    self.registers[d] = self.registers[s].wrapping_sub(self.registers[t])
+                }
                 OpCode::And => self.registers[d] = self.registers[s] & self.registers[t],
                 OpCode::Xor => self.registers[d] = self.registers[s] ^ self.registers[t],
-                OpCode::LeftShift => self.registers[d] = self.registers[s].wrapping_shl(self.registers[t] as u32),
-                OpCode::RightShift => self.registers[d] = self.registers[s].wrapping_shr(self.registers[t] as u32),
+                OpCode::LeftShift => {
+                    self.registers[d] = self.registers[s].wrapping_shl(self.registers[t] as u32)
+                }
+                OpCode::RightShift => {
+                    self.registers[d] = self.registers[s].wrapping_shr(self.registers[t] as u32)
+                }
                 OpCode::LoadAddress => self.registers[d] = addr as i16,
                 OpCode::Load => self.registers[d] = self.memory[addr],
                 OpCode::Store => self.memory[addr] = self.registers[d],
-                OpCode::LoadIndirect => self.registers[d] = self.memory[(self.registers[t] & 255) as usize],
-                OpCode::StoreIndirect => self.memory[(self.registers[t] & 255) as usize] = self.registers[d],
-                OpCode::BranchZero => if self.registers[d] == 0 {
+                OpCode::LoadIndirect => {
+                    self.registers[d] = self.memory[(self.registers[t] & 255) as usize]
+                }
+                OpCode::StoreIndirect => {
+                    self.memory[(self.registers[t] & 255) as usize] = self.registers[d]
+                }
+                OpCode::BranchZero => {
+                    if self.registers[d] == 0 {
                         self.pc = addr as u8;
-                    },
-                OpCode::BranchPositive => if self.registers[d] > 0 {
-                    self.pc = addr as u8;
-                },
+                    }
+                }
+                OpCode::BranchPositive => {
+                    if self.registers[d] > 0 {
+                        self.pc = addr as u8;
+                    }
+                }
                 OpCode::JumpRegister => self.pc = self.registers[d] as u8,
                 OpCode::JumpAndLink => {
                     self.registers[d] = self.pc as i16;
@@ -136,7 +158,9 @@ impl Toy {
                 }
             }
 
-            if (addr == 255 && op == OpCode::Store) || (self.registers[t] == 255 && op == OpCode::StoreIndirect) {
+            if (addr == 255 && op == OpCode::Store)
+                || (self.registers[t] == 255 && op == OpCode::StoreIndirect)
+            {
                 println!("Out:");
                 println!("{0:#06X} ({0})", self.memory[255]);
             }
@@ -152,9 +176,7 @@ fn from_hex(s: &str) -> i16 {
 
 fn is_hex_char(c: char) -> bool {
     match c {
-        '0'..='9'
-      | 'A'..='F'
-      | 'a'..='f' => true,
-        _ => false
+        '0'..='9' | 'A'..='F' | 'a'..='f' => true,
+        _ => false,
     }
 }

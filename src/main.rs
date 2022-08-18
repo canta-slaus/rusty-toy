@@ -1,20 +1,15 @@
+mod error;
 mod toy;
 mod opcode;
+
+use error::ToyError;
 use toy::Toy;
 
-fn main() {
+fn main() -> Result<(), ToyError>{
     let mut toy = Toy::new();
 
-    {
-        let args: Vec<String> = std::env::args().collect();
-
-        if args.len() == 1 {
-            println!("No path to .toy file provided");
-            return;
-        }
-
-        toy.read_from_file(&args[1]);
-    }
+    let args: Vec<String> = std::env::args().collect();
+    toy.read_from_file(args.get(1))?;
 
     println!("Before");
     print_contents(&toy);
@@ -23,6 +18,8 @@ fn main() {
 
     println!("After");
     print_contents(&toy);
+
+    Ok(())
 }
 
 fn print_contents(toy: &Toy) {
