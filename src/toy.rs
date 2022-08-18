@@ -85,10 +85,10 @@ impl Toy {
     }
 
     fn print_array(array: &[i16]) {
-        for i in 0..array.len() {
-            print!("{:#06X} ", array[i]);
+        for (i, hex) in array.iter().enumerate() {
+            print!("{:#06X} ", hex);
             if i % 8 == 7 {
-                println!("");
+                println!();
             }
         }
     }
@@ -113,7 +113,7 @@ impl Toy {
                 io::stdin()
                     .read_line(&mut input)
                     .expect("Failed to read stdin");
-                self.memory[255] = from_hex(&input.trim());
+                self.memory[255] = from_hex(input.trim());
             }
 
             match op {
@@ -175,8 +175,5 @@ fn from_hex(s: &str) -> i16 {
 }
 
 fn is_hex_char(c: char) -> bool {
-    match c {
-        '0'..='9' | 'A'..='F' | 'a'..='f' => true,
-        _ => false,
-    }
+    matches!(c, '0'..='9' | 'A'..='F' | 'a'..='f')
 }
