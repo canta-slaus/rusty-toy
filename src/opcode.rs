@@ -37,7 +37,7 @@ impl OpCode {
             13 => Self::BranchPositive,
             14 => Self::JumpRegister,
             15 => Self::JumpAndLink,
-            _ => unreachable!()
+            _ => unreachable!(),
         }
     }
 }

@@ -1,11 +1,11 @@
 mod error;
-mod toy;
 mod opcode;
+mod toy;
 
 use error::ToyError;
 use toy::Toy;
 
-fn main() -> Result<(), ToyError>{
+fn main() -> Result<(), ToyError> {
     let mut toy = Toy::new();
 
     let args: Vec<String> = std::env::args().collect();
